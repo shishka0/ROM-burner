@@ -1,1 +1,2 @@
-def get_rom_data(fname):
+def parse(f):
+    for line in f:

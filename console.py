@@ -5,14 +5,14 @@ class Console:
     COLOR_BG    = 'gray35'
     COLOR_TXT   = 'ghost white'
 
-    MAX_LINES   = 8
+    MAX_LINES   = 40
 
     def __init__(self, master, mrow, mcol):
         self.master = master
 
         # Initialize wrapper frame
         self.frame = tk.Frame(self.master)
-        self.frame.grid(row=mrow, column=mcol, sticky='NWSE')
+        self.frame.grid(row=mrow, column=mcol, sticky='NSE')
         self.frame.config(bg=Console.COLOR_BG)
 
         self.frame.columnconfigure(0, weight=1)
@@ -27,7 +27,6 @@ class Console:
                           relief='sunken'
         )
         self.panel.grid(row=0, column=0, sticky='NWSE')
-        self.print("ROM Burner")
 
     def _strip_text(self):
         """Strips message to less than MAX_LINES"""
