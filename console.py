@@ -5,7 +5,7 @@ class Console:
     COLOR_BG    = 'gray35'
     COLOR_TXT   = 'ghost white'
 
-    MAX_TXT = 80*10
+    MAX_LINES   = 8
 
     def __init__(self, master, mrow, mcol):
         self.master = master
@@ -13,29 +13,41 @@ class Console:
         # Initialize wrapper frame
         self.frame = tk.Frame(self.master)
         self.frame.grid(row=mrow, column=mcol, sticky='NWSE')
-        self.frame.grid(bg=Console.COLOR_BG)
+        self.frame.config(bg=Console.COLOR_BG)
+
+        self.frame.columnconfigure(0, weight=1)
+        self.frame.rowconfigure(0, weight=1)
 
         # Initialize text
-        self.text = ''
-        self.panel = tk.Label(self.frame)
-        self.panel.config(text='Welcome to ROM Burner!',
+        self.panel = tk.Text(self.frame, state=tk.DISABLED)
+        self.panel.config(
                           font=('Consolas', 12),
                           bg=Console.COLOR_BG,
                           fg=Console.COLOR_TXT,
-                          relief='sunken')
+                          relief='sunken'
+        )
         self.panel.grid(row=0, column=0, sticky='NWSE')
+        self.print("ROM Burner")
 
     def _strip_text(self):
-        """Strips message to less than MAX_TXT preserving the lines"""
-        if len(self.text) > Console.MAX_TXT:
-            lines = self.text.split('\n')
+        """Strips message to less than MAX_LINES"""
+        nlines = self.nlines()
+        if nlines > Console.MAX_LINES:
+            self.panel.delete('1.0', str(float(nlines - Console.MAX_LINES)))
 
-            self.text = lines.pop() + '\n'
-            while len(self.text) + len(lines[-1]) < Console.MAX_TXT:
-                self.text = lines.pop() + '\n' + self.text
+    def nlines(self):
+        return int(self.panel.index(tk.END).split('.')[0]) - 1
 
     def print(self, msg):
         """Prints message to the console"""
-        self.text += msg
+        if not msg.endswith('\n'):
+            msg += '\n'
+        self.panel.config(state=tk.NORMAL)
+        self.panel.insert(tk.END, msg)
         self._strip_text()
+        self.panel.see(tk.END)
+        self.panel.config(state=tk.DISABLED)
+
+    def clear(self):
+        self.text = ''
         self.panel.config(text=self.text, anchor='nw', justify='l')

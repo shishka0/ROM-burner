@@ -33,9 +33,14 @@ def list():
     return result
 
 
+def encode(address, word):
+    """Encodes address and word according to the standard:
+        <address> <word>\n"""
+    return "{} {}\n".format(address, word).encode()
+
+
 def send(data, port, **kwargs):
-    """Sends ROM data though the selected serial port. Data is formatted as follows"
-        <address> <word>\n
+    """Sends ROM data though the selected serial port.
     Args:
         data (iterable(tuple(address, word))): data to send to the serial port
         port (str): port name
@@ -50,7 +55,11 @@ def send(data, port, **kwargs):
         port.close()
         return False
 
+    # Send SOT byte to signal transmission start
+    port.write(chr(2).encode())
     for addr, word in data:
-        port.write("{} {}\n".format(addr, word).encode())
+        port.write(encode(addr, word))
+    # Send EOT byte to signal transmission end
+    port.write(chr(4).encode())
     port.close()
     return True
