@@ -3,13 +3,13 @@ import glob
 import serial
 
 Serial = serial.Serial
-
+BAUD_RATE = 9600
 
 def list():
     """Lists serial port names
-        :raises EnvironmentError:
+        Raises: EnvironmentError
             On unsupported or unknown platforms
-        :returns:
+        Returns:
             A list of the serial ports available on the system
     """
     if sys.platform.startswith('win'):
@@ -35,11 +35,13 @@ def list():
 
 def encode(address, word):
     """Encodes address and word according to the standard:
-        <address> <word>\n"""
-    return "{} {}\n".format(address, word).encode()
+        <address> <word>\n
+        Both the address and the word are encoded in a 16-character long string
+        representing 8 bytes of data"""
+    return "{:0>16X} {:0>16X};".format(address, word).encode()
 
 
-def send(data, port, **kwargs):
+def send(data, pname, **kwargs):
     """Sends ROM data though the selected serial port.
     Args:
         data (iterable(tuple(address, word))): data to send to the serial port
@@ -48,18 +50,20 @@ def send(data, port, **kwargs):
     Returns:
         True if operation was completed successfully, False otherwise
     """
-    port = serial.Serial(port, **kwargs)
-    try:
-        port.open()
-    except serial.SerialException:
-        port.close()
-        return False
+    port = serial.Serial(pname, BAUD_RATE, **kwargs)
+    #try:
+    #    port.open()
+    #except serial.SerialException:
+    #    port.close()
+    #    print('Could not open port')
+    #    return False
 
-    # Send SOT byte to signal transmission start
-    port.write(chr(2).encode())
+    # # Send SOT byte to signal transmission start
+    # port.write(chr(2).encode())
     for addr, word in data:
+        print(encode(addr, word))
         port.write(encode(addr, word))
     # Send EOT byte to signal transmission end
-    port.write(chr(4).encode())
+    #port.write(chr(4).encode())
     port.close()
     return True

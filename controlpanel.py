@@ -1,6 +1,9 @@
+import os
+
 import tkinter as tk
 import tkinter.filedialog as filedialog
 import tkinter.ttk as ttk
+
 import serialinterface as si
 
 
@@ -12,6 +15,7 @@ class ControlPanel:
         # General variables
         self.file = None
         self.port = None
+        self.portlist = []
 
         # Initialize Wrapper frame
         self.frame = tk.Frame(self.master)
@@ -47,7 +51,7 @@ class ControlPanel:
         fcb = ttk.Combobox(self.frame)
         fcb.config(state='readonly')
         fcb.grid(row=1, column=1, sticky='NEW')
-        # fcb.bind('<<ComboboxSelected>>', self.port_selected)
+        fcb.bind('<<ComboboxSelected>>', self._cb_port_selected)
         self.comboboxes['port'] = fcb
         self.refresh()
 
@@ -70,24 +74,46 @@ class ControlPanel:
         self.buttons['burn'] = bopen
 
     def print(self, msg):
+        """Prints a message to the output console"""
         if 'print' in self.callbacks:
             self.callbacks['print'](msg)
 
+    def _cb_port_selected(self, *args):
+        """Callback invoked when a port is selected from the dropdown menu"""
+        self.port = self.portlist[self.comboboxes['port'].current()]
+        self.comboboxes['port'].select_clear()
+        self.callbacks['cbPortSelected'](self.port)
+
+    def set_file(self, fname):
+        """Sets the selected file. If fname is Null, the label in the gui is
+        also reset to 'choose file'."""
+        self.file = fname
+        if fname is None:
+            self.labels['filename'].config(text='choose file')
+        else:
+            self.labels['filename'].config(text=os.path.basename(fname))
+
     def refresh(self):
-        self.comboboxes['port']['values'] = si.list()
+        """Refreshes serial port list"""
+        self.portlist = si.list()
+        self.comboboxes['port']['values'] = self.portlist
+        self.port = None
 
     def _b_burn(self):
+        """Once file and port are selected, burns data through the serial port
+        """
         self.callbacks['bBurn'](self.file, self.port)
 
     def _b_open(self):
-        fname = filedialog.askopenfilename(initialdir='~',
+        """Opens file"""
+        fname = filedialog.askopenfilename(initialdir=os.getcwd(),
                                           title='Select file',
                                           filetypes=(('ROM Files', '*.rom'),
                                                      ('All files', '*.*'))
-        )
-        if fname in ['', '()']:
-            return
-        self.file = fname
+            )
+        if not fname:
+            fname = None
+        self.set_file(fname)
         self.print("Selected file: {}".format(fname))
 
     def _b_refresh(self):
