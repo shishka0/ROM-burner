@@ -35,6 +35,7 @@ class Console:
             self.panel.delete('1.0', str(float(nlines - Console.MAX_LINES)))
 
     def nlines(self):
+        """Counts the number of lines currently displayed in the console"""
         return int(self.panel.index(tk.END).split('.')[0]) - 1
 
     def print(self, msg):
@@ -48,5 +49,6 @@ class Console:
         self.panel.config(state=tk.DISABLED)
 
     def clear(self):
+        """Clears console"""
         self.text = ''
         self.panel.config(text=self.text, anchor='nw', justify='l')
