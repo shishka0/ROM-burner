@@ -35,7 +35,7 @@ def list():
 
 def encode(address, word):
     """Encodes address and word according to the standard:
-        <address> <word>\n
+        <address> <word>;
         Both the address and the word are encoded in a 16-character long string
         representing 8 bytes of data"""
     return "{:0>16X} {:0>16X};".format(address, word).encode()
