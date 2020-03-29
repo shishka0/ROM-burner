@@ -1,2 +1,2 @@
-# ROM_Burner
-Program to burn data inside an EEPROM or NOR Flash
+# ROM-Burner
+Burn Rdata inside an EEPROM or NOR Flash through a standard serial interface with any microcontroller
